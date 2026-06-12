@@ -18,6 +18,8 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+AGENTS.md
+CLAUDE.md
 .claude/settings.local.json
 .agents/
 .codex/
