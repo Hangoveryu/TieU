@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>历史粘贴板</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+    body.light { background: #F0F6FC; color: #333; }
+    body.dark  { background: #1E1E2E; color: #CDD6F4; }
+
+    /* light 默认色值通过 CSS 变量统一定义 */
+    :root {
+      --bg: #F0F6FC;
+      --text: #333;
+      --card-bg: #fff;
+      --card-border: #D6E8F7;
+      --card-hover: #E8F2FB;
+      --primary: #5B9BD5;
+      --muted: #888;
+      --placeholder: #B0BEC5;
+      --input-border: #B3D4F0;
+      --divider: #D6E8F7;
+      --pin: #FFB74D;
+      --delete: #E57373;
+      --toast-bg: #333;
+      --toast-text: #fff;
+    }
+
+    body.dark {
+      --bg: #1E1E2E;
+      --text: #CDD6F4;
+      --card-bg: #313244;
+      --card-border: #45475A;
+      --card-hover: #3A3B50;
+      --primary: #89B4FA;
+      --muted: #9399B2;
+      --placeholder: #585B70;
+      --input-border: #45475A;
+      --divider: #45475A;
+      --pin: #F9E2AF;
+      --delete: #F38BA8;
+      --toast-bg: #CDD6F4;
+      --toast-text: #1E1E2E;
+    }
+
+    body { background: var(--bg); color: var(--text); }
+
+    /* ====== 顶部固定区域（可拖拽） ====== */
+    .top-fixed {
+      flex-shrink: 0;
+      padding: 14px 12px 0 12px;
+      -webkit-app-region: drag;
+    }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; padding: 0 4px;
+    }
+    .header h1 {
+      font-size: 15px; font-weight: 600; color: var(--primary);
+      display: flex; align-items: center; justify-content: space-between; width: 100%;
+    }
+    .header .stats { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+    .pin-panel-btn {
+      background: none; border: 1px solid var(--card-border); border-radius: 4px;
+      cursor: pointer; font-size: 12px; padding: 2px 6px; color: var(--muted);
+      transition: all 0.15s;
+    }
+    .pin-panel-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pin-panel-btn.pinned { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .pin-label {
+      font-size: 11px; color: var(--muted); cursor: pointer; display: inline-flex;
+      align-items: center; gap: 3px; margin-left: 8px;
+      -webkit-app-region: no-drag;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    .pin-checkbox { accent-color: var(--primary); cursor: pointer; -webkit-app-region: no-drag; margin: 0; visibility: visible !important; }
+
+    .search-wrapper { position: relative; margin-bottom: 8px; -webkit-app-region: no-drag; }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; pointer-events: none; z-index: 1;
+    }
+    .search-bar {
+      width: 100%; height: 34px; border: 1px solid var(--input-border);
+      border-radius: 17px; padding: 0 14px 0 34px; font-size: 13px;
+      outline: none; background: var(--card-bg); color: var(--text);
+      -webkit-app-region: no-drag;
+    }
+    .search-bar::placeholder { color: var(--placeholder); }
+    .search-bar:focus { border-color: var(--primary); }
+
+    /* ====== 中间可滚动卡片区域 ====== */
+    .scroll-area { flex: 1; overflow-y: auto; padding: 0 12px; }
+    .card-list { display: flex; flex-direction: column; gap: 6px; padding-bottom: 4px; }
+
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 10px 12px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s; position: relative;
+    }
+    .card:hover { background: var(--card-hover); border-color: var(--primary); }
+    .card.pinned { border-left: 3px solid var(--pin); }
+
+    .card .pin-badge { position: absolute; top: 6px; right: 8px; font-size: 12px; color: var(--pin); }
+    .card-content {
+      font-size: 13px; line-height: 1.5; color: var(--text);
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden; margin-bottom: 6px;
+    }
+    .card-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--muted);
+    }
+    .card-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+    .card:hover .card-actions { opacity: 1; }
+    .card-actions button {
+      background: none; border: none; cursor: pointer; font-size: 14px;
+      padding: 2px 4px; border-radius: 4px; transition: background 0.15s;
+    }
+    .card-actions button:hover { background: rgba(128,128,128,0.15); }
+    .btn-delete { color: var(--delete); }
+    .btn-pin { color: var(--pin); }
+
+    .empty-state { text-align: center; padding: 40px 16px; color: var(--placeholder); }
+    .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; }
+
+    .time-divider { text-align: center; font-size: 11px; color: var(--placeholder); padding: 12px 0 8px 0; }
+
+    /* ====== 底部固定区域 ====== */
+    .bottom-fixed { flex-shrink: 0; padding: 0 16px 10px 16px; }
+    .settings-bar {
+      display: flex; align-items: center; gap: 8px; padding-top: 8px;
+      border-top: 1px solid var(--divider); font-size: 12px;
+    }
+    .settings-bar label { color: var(--muted); white-space: nowrap; margin-right: 2px; }
+    .settings-bar label::after { content: ''; }
+    .settings-bar select {
+      padding: 3px 6px; border: 1px solid var(--divider); border-radius: 4px;
+      font-size: 12px; outline: none; background: var(--card-bg); color: var(--text); margin-right: 12px;
+    }
+    .settings-bar input[type="checkbox"] { accent-color: var(--primary); }
+
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--toast-bg); color: var(--toast-text); padding: 6px 18px;
+      border-radius: 14px; font-size: 12px; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s; z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body id="body" class="light">
+  <!-- 顶部固定：标题 + 搜索 -->
+  <div class="top-fixed">
+    <div class="header">
+      <h1>📋 历史粘贴板 <span class="stats" id="stats">共 0 条</span> <label class="pin-label" title="固定面板（置顶 + 失焦不消失）"><input type="checkbox" id="pinPanelCheck" class="pin-checkbox"> 固定</label></h1>
+    </div>
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input class="search-bar" id="search" type="text" placeholder="搜索复制过的内容…">
+    </div>
+  </div>
+
+  <!-- 中间可滚动：卡片列表 -->
+  <div class="scroll-area" id="scrollArea">
+    <div class="card-list" id="cardList"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="icon">📋</div>
+      <p>复制一段文字或图片试试吧</p>
+      <p style="font-size:11px;margin-top:4px;">Ctrl+Shift+Z 可随时唤起此面板</p>
+    </div>
+  </div>
+
+  <!-- 底部固定：设置 -->
+  <div class="bottom-fixed">
+    <div class="settings-bar" id="settingsBar">
+      <label>保留</label>
+      <select id="retentionSelect">
+        <option value="1">1 天</option>
+        <option value="3">3 天</option>
+        <option value="5">5 天</option>
+      </select>
+      <label>主题</label>
+      <select id="themeSelect">
+        <option value="light">浅色</option>
+        <option value="dark">深色</option>
+        <option value="system">跟随系统</option>
+      </select>
+      <label style="margin-left:0;">
+        <input type="checkbox" id="autostartCheck"> 开机自启
+      </label>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="list-groups.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

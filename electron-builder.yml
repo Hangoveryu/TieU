@@ -1,0 +1,77 @@
+# electron-builder.yml — Windows 安装程序打包配置
+# 文档: https://www.electron.build/configuration/configuration
+
+appId: com.history-clipboard.app
+productName: 历史粘贴板
+copyright: Copyright © 2026
+
+directories:
+  output: dist
+  buildResources: assets
+
+compression: maximum
+afterPack: scripts/prune-electron-runtime.js
+
+# 只保留中文语言包，缩减 ~40MB
+electronLanguages:
+  - zh-CN
+
+# 打包时复制 sql.js wasm 运行时文件；入口 JS 保留在 app.asar 中供 require('sql.js') 使用
+extraResources:
+  - from: node_modules/sql.js/dist
+    to: sql.js
+    filter:
+      - "sql-wasm.wasm"
+
+files:
+  - src/**/*.js
+  - src/**/*.html
+  - assets/tray-icon-*.png
+  - assets/tray-icon.png
+  - package.json
+  - node_modules/sql.js/package.json
+  - node_modules/sql.js/dist/sql-wasm.js
+  - "!**/*.js.map"
+  - "!**/*.d.ts.map"
+  - "!**/*.d.ts"
+  - "!**/*.ts"
+  - "!**/.turbo/**"
+  - "!**/.tshy/**"
+  - "!**/eslint.config.*"
+  - "!**/tsconfig.json"
+  - "!node_modules/**/src/**"
+  - "!node_modules/**/dist/esm/**"
+  - "!node_modules/sql.js/.devcontainer/**"
+  - "!node_modules/sql.js/AUTHORS"
+  - "!node_modules/sql.js/CONTRIBUTING.md"
+  - "!node_modules/sql.js/documentation_index.md"
+  - "!node_modules/sql.js/logo.svg"
+  - "!node_modules/sql.js/.eslintrc.js"
+  - "!node_modules/sql.js/.jsdoc.config.json"
+  - "!node_modules/sql.js/.nojekyll"
+  - "!node_modules/sql.js/dist/**"
+  - "node_modules/sql.js/dist/sql-wasm.js"
+
+win:
+  icon: assets/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 历史粘贴板
+  installerIcon: assets/icon.ico
+  uninstallerIcon: assets/icon.ico
+  installerHeaderIcon: assets/icon.ico
+  # 安装语言：简体中文 + English 回退
+  language: 2052
+
+# 不需要自动更新（v1.0 阶段）
+publish: null

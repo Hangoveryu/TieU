@@ -1,0 +1,27 @@
+# 依赖
+node_modules/
+
+# 运行时数据
+data/
+*.db
+
+# 构建产物
+dist/
+out/
+release/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
+.claude/settings.local.json
+.agents/
+.codex/
+
+# 环境变量
+.env
+.env.local
