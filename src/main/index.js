@@ -31,7 +31,11 @@ const store = require('./store');
 const autoclean = require('./autoclean');
 const autostart = require('./autostart');
 const focusedInput = require('./focused-input');
-const { getAutoPastePanelAction, getPanelShortcutAction } = require('./panel-behavior');
+const {
+  getAutoPastePanelAction,
+  getNextPasteTargetAfterCopy,
+  getPanelShortcutAction
+} = require('./panel-behavior');
 
 // 本应用是轻量工具界面，不需要 Chromium GPU 管线；关闭 GPU 能减少对可选图形运行时文件的依赖。
 app.commandLine.appendSwitch('disable-gpu');
@@ -277,7 +281,10 @@ ipcMain.handle('clips:copy', async (_e, id) => {
   clipboardWatcher.updateLastState();
 
   const target = pasteTarget;
-  pasteTarget = null;
+  pasteTarget = getNextPasteTargetAfterCopy({
+    currentTarget: target,
+    isPinned: panelPinned
+  });
 
   if (target && target.hwnd) {
     if (getAutoPastePanelAction({ isPinned: panelPinned }) === 'hide') {

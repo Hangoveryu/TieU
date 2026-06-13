@@ -3,6 +3,7 @@ const test = require('node:test');
 
 const {
   getAutoPastePanelAction,
+  getNextPasteTargetAfterCopy,
   getPanelShortcutAction
 } = require('../src/main/panel-behavior');
 
@@ -53,4 +54,20 @@ test('auto paste keeps a pinned panel visible', () => {
 
 test('auto paste hides an unpinned panel', () => {
   assert.equal(getAutoPastePanelAction({ isPinned: false }), 'hide');
+});
+
+test('pinned auto paste keeps the target for consecutive card clicks', () => {
+  const target = { hwnd: '100', focusHwnd: '200' };
+
+  assert.strictEqual(getNextPasteTargetAfterCopy({
+    currentTarget: target,
+    isPinned: true
+  }), target);
+});
+
+test('unpinned auto paste clears the target after one card click', () => {
+  assert.equal(getNextPasteTargetAfterCopy({
+    currentTarget: { hwnd: '100', focusHwnd: '200' },
+    isPinned: false
+  }), null);
 });
