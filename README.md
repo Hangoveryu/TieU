@@ -13,6 +13,12 @@ Windows 桌面剪贴板历史工具。应用会自动记录复制过的文字和
 - 系统托盘常驻、开机自启、全局快捷键唤起
 - 从输入框附近唤起时，点击卡片可自动粘贴回原输入框
 
+## 下载安装
+
+普通用户不需要下载源码。请前往 [GitHub Releases](https://github.com/202312063034/history-clipboard/releases/latest) 下载最新的 `历史粘贴板 Setup x.x.x.exe` 安装包，双击运行后按安装向导完成安装。
+
+当前仅提供 Windows 安装包。
+
 ## 技术栈
 
 - Electron
