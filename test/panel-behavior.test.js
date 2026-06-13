@@ -1,7 +1,10 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const { getPanelShortcutAction } = require('../src/main/panel-behavior');
+const {
+  getAutoPastePanelAction,
+  getPanelShortcutAction
+} = require('../src/main/panel-behavior');
 
 test('hotkey hides the panel when the panel itself is focused', () => {
   assert.equal(getPanelShortcutAction({
@@ -33,4 +36,21 @@ test('hidden panel is shown', () => {
     isFocused: false,
     nearFocusedInput: true
   }), 'show');
+});
+
+test('hotkey hides a visible pinned panel even when another input is focused', () => {
+  assert.equal(getPanelShortcutAction({
+    isVisible: true,
+    isFocused: false,
+    nearFocusedInput: true,
+    isPinned: true
+  }), 'hide');
+});
+
+test('auto paste keeps a pinned panel visible', () => {
+  assert.equal(getAutoPastePanelAction({ isPinned: true }), 'keep');
+});
+
+test('auto paste hides an unpinned panel', () => {
+  assert.equal(getAutoPastePanelAction({ isPinned: false }), 'hide');
 });

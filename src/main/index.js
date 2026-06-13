@@ -31,7 +31,7 @@ const store = require('./store');
 const autoclean = require('./autoclean');
 const autostart = require('./autostart');
 const focusedInput = require('./focused-input');
-const { getPanelShortcutAction } = require('./panel-behavior');
+const { getAutoPastePanelAction, getPanelShortcutAction } = require('./panel-behavior');
 
 // 本应用是轻量工具界面，不需要 Chromium GPU 管线；关闭 GPU 能减少对可选图形运行时文件的依赖。
 app.commandLine.appendSwitch('disable-gpu');
@@ -148,7 +148,8 @@ async function togglePanel(options = {}) {
   const action = getPanelShortcutAction({
     isVisible: Boolean(mainWindow && mainWindow.isVisible()),
     isFocused: Boolean(mainWindow && mainWindow.isFocused()),
-    nearFocusedInput: Boolean(options.nearFocusedInput)
+    nearFocusedInput: Boolean(options.nearFocusedInput),
+    isPinned: panelPinned
   });
 
   if (action === 'hide') hidePanel();
@@ -279,7 +280,9 @@ ipcMain.handle('clips:copy', async (_e, id) => {
   pasteTarget = null;
 
   if (target && target.hwnd) {
-    hidePanel();
+    if (getAutoPastePanelAction({ isPinned: panelPinned }) === 'hide') {
+      hidePanel();
+    }
     const pasted = await focusedInput.pasteToFocusedTarget(target);
     return { success: true, pasted };
   }

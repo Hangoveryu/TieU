@@ -319,6 +319,12 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// 手动隐藏面板。固定状态下也允许用户显式收起，但不退出程序。
+document.getElementById('closePanelBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  window.electronAPI.hidePanel();
+});
+
 // 固定面板复选框
 document.getElementById('pinPanelCheck').addEventListener('change', async (e) => {
   e.stopPropagation();

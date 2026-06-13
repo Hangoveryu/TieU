@@ -67,9 +67,18 @@
     }
     .header h1 {
       font-size: 15px; font-weight: 600; color: var(--primary);
-      display: flex; align-items: center; justify-content: space-between; width: 100%;
+      display: flex; align-items: center; gap: 8px; width: 100%;
     }
     .header .stats { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+    .panel-close-btn {
+      width: 24px; height: 24px; border: none; border-radius: 4px;
+      background: transparent; color: var(--muted); cursor: pointer;
+      font-size: 18px; line-height: 24px; text-align: center;
+      -webkit-app-region: no-drag;
+      transition: background 0.15s, color 0.15s;
+    }
+    .panel-close-btn:hover { background: rgba(128,128,128,0.15); color: var(--delete); }
 
     .pin-panel-btn {
       background: none; border: 1px solid var(--card-border); border-radius: 4px;
@@ -167,7 +176,7 @@
   <!-- 顶部固定：标题 + 搜索 -->
   <div class="top-fixed">
     <div class="header">
-      <h1>📋 历史粘贴板 <span class="stats" id="stats">共 0 条</span> <label class="pin-label" title="固定面板（置顶 + 失焦不消失）"><input type="checkbox" id="pinPanelCheck" class="pin-checkbox"> 固定</label></h1>
+      <h1>📋 历史粘贴板 <span class="stats" id="stats">共 0 条</span> <label class="pin-label" title="固定面板（置顶 + 失焦不消失）"><input type="checkbox" id="pinPanelCheck" class="pin-checkbox"> 固定</label><button type="button" class="panel-close-btn" id="closePanelBtn" title="隐藏面板" aria-label="隐藏面板">×</button></h1>
     </div>
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>

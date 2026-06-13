@@ -1,5 +1,7 @@
-function getPanelShortcutAction({ isVisible, isFocused, nearFocusedInput }) {
+function getPanelShortcutAction({ isVisible, isFocused, nearFocusedInput, isPinned = false }) {
   if (!isVisible) return 'show';
+
+  if (isPinned) return 'hide';
 
   if (nearFocusedInput && !isFocused) {
     return 'show';
@@ -8,6 +10,11 @@ function getPanelShortcutAction({ isVisible, isFocused, nearFocusedInput }) {
   return 'hide';
 }
 
+function getAutoPastePanelAction({ isPinned }) {
+  return isPinned ? 'keep' : 'hide';
+}
+
 module.exports = {
+  getAutoPastePanelAction,
   getPanelShortcutAction
 };
