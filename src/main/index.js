@@ -1,4 +1,4 @@
-// 历史粘贴板 — 主进程入口
+// 贴友 TieU — 主进程入口
 delete process.env.ELECTRON_RUN_AS_NODE;
 
 // 安全检测：如果 Electron 未正确加载（ELECTRON_RUN_AS_NODE=1 时 require('electron') 返回字符串）
@@ -74,7 +74,7 @@ function createWindow() {
     width: 380, height: 520,
     minWidth: 320, minHeight: 400,
     frame: false, resizable: true, show: false,
-    title: '历史粘贴板',
+    title: '贴友',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -173,7 +173,7 @@ function createTray() {
   }
 
   tray = new Tray(trayIcon);
-  tray.setToolTip('历史粘贴板');
+  tray.setToolTip('贴友');
 
   const contextMenu = Menu.buildFromTemplate([
     { label: '打开面板', accelerator: 'Ctrl+Shift+Z', click: () => { void showPanel(); } },

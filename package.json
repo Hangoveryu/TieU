@@ -1,7 +1,7 @@
 {
   "name": "history-clipboard",
   "version": "1.0.1",
-  "description": "历史粘贴板 — 自动记录剪贴板文字和图片的 Windows 桌面工具",
+  "description": "贴友 TieU — 自动记录剪贴板文字和图片的 Windows 桌面工具",
   "main": "src/main/index.js",
   "scripts": {
     "start": "chcp 65001 > nul && node_modules\\electron\\dist\\electron.exe . --disable-gpu --disable-software-rasterizer",

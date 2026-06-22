@@ -1,6 +1,6 @@
-# 历史粘贴板
+# 贴友 TieU
 
-Windows 桌面剪贴板历史工具。应用会自动记录复制过的文字和图片，以卡片形式按时间倒序展示，支持搜索、置顶、删除、图片预览、自动过期清理、系统托盘常驻和 `Ctrl+Shift+Z` 全局快捷键唤起。
+贴友（TieU）是一款 Windows 桌面剪贴板历史工具。应用会自动记录复制过的文字和图片，以卡片形式按时间倒序展示，支持搜索、置顶、删除、图片预览、自动过期清理、系统托盘常驻和 `Ctrl+Shift+Z` 全局快捷键唤起。
 
 ## 功能
 
@@ -15,7 +15,7 @@ Windows 桌面剪贴板历史工具。应用会自动记录复制过的文字和
 
 ## 下载安装
 
-普通用户不需要下载源码。请前往 [GitHub Releases](https://github.com/Hangoveryu/history-clipboard/releases/latest) 下载最新的 `history-clipboard-setup-x.x.x.exe` 安装包，双击运行后按安装向导完成安装。
+普通用户不需要下载源码。请前往 [GitHub Releases](https://github.com/Hangoveryu/TieU/releases/latest) 下载最新的 `tieu-setup-x.x.x.exe` 安装包，双击运行后按安装向导完成安装。
 
 当前仅提供 Windows 安装包。
 

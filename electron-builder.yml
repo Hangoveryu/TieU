@@ -2,7 +2,7 @@
 # 文档: https://www.electron.build/configuration/configuration
 
 appId: com.history-clipboard.app
-productName: 历史粘贴板
+productName: 贴友
 copyright: Copyright © 2026
 
 directories:
@@ -66,7 +66,7 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: 历史粘贴板
+  shortcutName: 贴友
   installerIcon: assets/icon.ico
   uninstallerIcon: assets/icon.ico
   installerHeaderIcon: assets/icon.ico
