@@ -10,6 +10,7 @@ directories:
   buildResources: assets
 
 compression: maximum
+artifactName: tieu-setup-${version}.${ext}
 afterPack: scripts/prune-electron-runtime.js
 
 # 只保留中文语言包，缩减 ~40MB
