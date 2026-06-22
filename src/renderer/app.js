@@ -12,6 +12,7 @@ let searchKeyword = '';
 // DOM 元素
 // ============================================================
 const cardList = document.getElementById('cardList');
+const scrollArea = document.getElementById('scrollArea');
 const emptyState = document.getElementById('emptyState');
 const searchInput = document.getElementById('search');
 const themeSelect = document.getElementById('themeSelect');
@@ -305,6 +306,7 @@ window.electronAPI.onPanelShown(async (data) => {
   searchKeyword = '';
   searchInput.focus();
   await loadClips();
+  window.resetPanelScroll(scrollArea);
   // 同步固定按钮：主进程的 panelPinned 状态
   const pinCheck = document.getElementById('pinPanelCheck');
   if (pinCheck) pinCheck.checked = Boolean(data.pinned);
