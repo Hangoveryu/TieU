@@ -1,4 +1,4 @@
-// generate-icon.js — 从选定 Logo 预览源图生成应用图标与托盘图标
+// generate-icon.js — 从选定 Logo 源图生成应用图标与托盘图标
 // 用法：node assets/generate-icon.js
 
 const fs = require('fs');
@@ -115,9 +115,9 @@ $sizes = @(${sizesLiteral})
 
 $src = [System.Drawing.Bitmap]::FromFile($sourcePath)
 try {
-  # 第 4 款预览图的上半部分是目标图标，下半部分是字标锁定组合。
-  # 先在上半区自动寻找非白背景内容，避免裁入底部“贴友 TieU”字标。
-  $scanLimitY = [Math]::Floor($src.Height * 0.70)
+  # 当前源图是单独生成的 Logo mark。扫描整张图定位非白色主体，
+  # 再生成方形多尺寸图标；只清除边缘连通白底，保留主体内部白色卡片。
+  $scanLimitY = $src.Height
   $minX = $src.Width
   $minY = $src.Height
   $maxX = 0
