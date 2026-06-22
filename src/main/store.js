@@ -122,6 +122,35 @@ function rowsToObjects(result) {
   });
 }
 
+function findClipByHash(type, hash) {
+  const result = db.exec(
+    `SELECT id, type, content, image_path, thumb_path, content_hash, created_at, pinned
+     FROM clips
+     WHERE type = ? AND content_hash = ?
+     LIMIT 1`,
+    [type, hash]
+  );
+  return rowsToObjects(result)[0] || null;
+}
+
+function refreshExistingClip(type, hash, now) {
+  const existing = findClipByHash(type, hash);
+  if (!existing) return null;
+
+  db.run('UPDATE clips SET created_at = ? WHERE id = ?', [now, existing.id]);
+  save();
+  return { ...existing, created_at: now };
+}
+
+function deleteFileIfDifferent(filePath, existingPath) {
+  if (!filePath || filePath === existingPath) return;
+  try {
+    fs.unlinkSync(filePath);
+  } catch (e) {
+    // 重复图片的临时文件清理失败不应阻止记录时间刷新。
+  }
+}
+
 // ============================================================
 // 剪贴板记录 CRUD
 // ============================================================
@@ -129,17 +158,11 @@ function rowsToObjects(result) {
 /** 新增文字记录 */
 function addText(content) {
   const hash = hashContent(content);
-
-  // 去重：检查所有记录是否有相同哈希
-  const dup = db.exec(
-    'SELECT COUNT(*) as cnt FROM clips WHERE content_hash = ?',
-    [hash]
-  );
-  if (dup.length && dup[0].values.length && dup[0].values[0][0] > 0) {
-    return null; // 重复内容，跳过
-  }
-
   const now = Date.now();
+  const existing = refreshExistingClip('text', hash, now);
+
+  if (existing) return existing;
+
   db.run(
     'INSERT INTO clips (type, content, content_hash, created_at) VALUES (?, ?, ?, ?)',
     ['text', content, hash, now]
@@ -169,16 +192,14 @@ function addImage(imagePath, thumbPath) {
     hash = Date.now().toString(); // 读取失败用时间戳兜底
   }
 
-  // 去重：检查所有记录是否有相同哈希
-  const dup = db.exec(
-    'SELECT COUNT(*) as cnt FROM clips WHERE content_hash = ?',
-    [hash]
-  );
-  if (dup.length && dup[0].values.length && dup[0].values[0][0] > 0) {
-    return null;
+  const now = Date.now();
+  const existing = refreshExistingClip('image', hash, now);
+  if (existing) {
+    deleteFileIfDifferent(imagePath, existing.image_path);
+    deleteFileIfDifferent(thumbPath, existing.thumb_path);
+    return existing;
   }
 
-  const now = Date.now();
   db.run(
     'INSERT INTO clips (type, image_path, thumb_path, content_hash, created_at) VALUES (?, ?, ?, ?, ?)',
     ['image', imagePath, thumbPath, hash, now]

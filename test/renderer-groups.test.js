@@ -3,7 +3,8 @@ const test = require('node:test');
 
 const {
   groupClipsForRender,
-  shouldShowGroupDivider
+  shouldShowGroupDivider,
+  upsertClipById
 } = require('../src/renderer/list-groups');
 
 test('pinned clips render in their own top group even when older than today', () => {
@@ -44,4 +45,17 @@ test('today group also shows a divider label', () => {
 
   assert.deepEqual(groups.map(group => group.title), ['置顶记录', '今天', '更早的记录']);
   assert.equal(groups.every(shouldShowGroupDivider), true);
+});
+
+test('updated clip replaces the old item and moves to newest position without duplication', () => {
+  const clips = [
+    { id: 2, created_at: 200, pinned: 0 },
+    { id: 1, created_at: 100, pinned: 0 }
+  ];
+
+  const updated = upsertClipById(clips, { id: 1, created_at: 300, pinned: 0 });
+
+  assert.deepEqual(updated.map(clip => clip.id), [1, 2]);
+  assert.equal(updated.length, 2);
+  assert.equal(updated[0].created_at, 300);
 });

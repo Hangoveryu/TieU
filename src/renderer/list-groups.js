@@ -6,6 +6,19 @@ function byNewestFirst(a, b) {
   return Number(b.created_at || 0) - Number(a.created_at || 0);
 }
 
+function byRenderOrder(a, b) {
+  const pinDifference = Number(isPinned(b)) - Number(isPinned(a));
+  return pinDifference || byNewestFirst(a, b);
+}
+
+function upsertClipById(clips, updatedClip) {
+  const items = Array.isArray(clips) ? clips : [];
+  return items
+    .filter(clip => clip.id !== updatedClip.id)
+    .concat(updatedClip)
+    .sort(byRenderOrder);
+}
+
 function groupClipsForRender(clips, todayStart) {
   const items = Array.isArray(clips) ? clips.slice() : [];
   const start = Number(todayStart);
@@ -36,11 +49,13 @@ function shouldShowGroupDivider(group) {
 if (typeof window !== 'undefined') {
   window.groupClipsForRender = groupClipsForRender;
   window.shouldShowGroupDivider = shouldShowGroupDivider;
+  window.upsertClipById = upsertClipById;
 }
 
 if (typeof module !== 'undefined') {
   module.exports = {
     groupClipsForRender,
-    shouldShowGroupDivider
+    shouldShowGroupDivider,
+    upsertClipById
   };
 }

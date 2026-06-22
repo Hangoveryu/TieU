@@ -292,9 +292,9 @@ if (window.matchMedia) {
 
 // 监听新记录（主进程推送）
 window.electronAPI.onNewClip((clip) => {
-  // 新记录插入到列表（仅在无搜索关键词时）
+  // 新记录或重复复制后的更新时间都按 ID 合并，避免界面出现重复卡片。
   if (!searchKeyword) {
-    clips.unshift(clip);
+    clips = window.upsertClipById(clips, clip);
     render();
   }
 });
